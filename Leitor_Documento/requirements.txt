@@ -1,0 +1,4 @@
+python-docx
+pymupdf
+google-genai
+anthropic

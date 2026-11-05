@@ -1,0 +1,141 @@
+{
+  "processo": "Reserva de Sala ou Laboratório",
+  "elementos": [
+    {
+      "id": "inicio",
+      "tipo": "startEvent",
+      "nome": "Início da solicitação"
+    },
+    {
+      "id": "t1",
+      "tipo": "userTask",
+      "nome": "Preencher formulário de requisição",
+      "responsavel": "Solicitante"
+    },
+    {
+      "id": "t2",
+      "tipo": "userTask",
+      "nome": "Verificar disponibilidade do espaço na agenda",
+      "responsavel": "Secretaria"
+    },
+    {
+      "id": "g1",
+      "tipo": "exclusiveGateway",
+      "nome": "Espaço disponível?"
+    },
+    {
+      "id": "t3",
+      "tipo": "userTask",
+      "nome": "Informar solicitante sobre a indisponibilidade",
+      "responsavel": "Secretaria"
+    },
+    {
+      "id": "fimIndisponivel",
+      "tipo": "endEvent",
+      "nome": "Encerrado por indisponibilidade"
+    },
+    {
+      "id": "t4",
+      "tipo": "userTask",
+      "nome": "Encaminhar requisição ao coordenador",
+      "responsavel": "Secretaria"
+    },
+    {
+      "id": "t5",
+      "tipo": "userTask",
+      "nome": "Analisar requisição",
+      "responsavel": "Coordenador"
+    },
+    {
+      "id": "g2",
+      "tipo": "exclusiveGateway",
+      "nome": "Requisição aprovada?"
+    },
+    {
+      "id": "t6",
+      "tipo": "userTask",
+      "nome": "Informar negativa ao solicitante",
+      "responsavel": "Secretaria"
+    },
+    {
+      "id": "fimNegado",
+      "tipo": "endEvent",
+      "nome": "Encerrado por recusa"
+    },
+    {
+      "id": "t7",
+      "tipo": "userTask",
+      "nome": "Registrar reserva na agenda e enviar confirmação",
+      "responsavel": "Secretaria"
+    },
+    {
+      "id": "t8",
+      "tipo": "userTask",
+      "nome": "Preparar o espaço e liberar a chave",
+      "responsavel": "Técnico de laboratório"
+    },
+    {
+      "id": "fimConcluido",
+      "tipo": "endEvent",
+      "nome": "Reserva concluída"
+    }
+  ],
+  "conexoes": [
+    {
+      "origem": "inicio",
+      "destino": "t1"
+    },
+    {
+      "origem": "t1",
+      "destino": "t2"
+    },
+    {
+      "origem": "t2",
+      "destino": "g1"
+    },
+    {
+      "origem": "g1",
+      "destino": "t3",
+      "condicao": "Não"
+    },
+    {
+      "origem": "t3",
+      "destino": "fimIndisponivel"
+    },
+    {
+      "origem": "g1",
+      "destino": "t4",
+      "condicao": "Sim"
+    },
+    {
+      "origem": "t4",
+      "destino": "t5"
+    },
+    {
+      "origem": "t5",
+      "destino": "g2"
+    },
+    {
+      "origem": "g2",
+      "destino": "t6",
+      "condicao": "Não"
+    },
+    {
+      "origem": "t6",
+      "destino": "fimNegado"
+    },
+    {
+      "origem": "g2",
+      "destino": "t7",
+      "condicao": "Sim"
+    },
+    {
+      "origem": "t7",
+      "destino": "t8"
+    },
+    {
+      "origem": "t8",
+      "destino": "fimConcluido"
+    }
+  ]
+}

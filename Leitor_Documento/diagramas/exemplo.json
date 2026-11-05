@@ -1,0 +1,81 @@
+{
+  "processo": "Reserva de laboratório",
+  "elementos": [
+    {
+      "id": "inicio",
+      "tipo": "startEvent",
+      "nome": "Início"
+    },
+    {
+      "id": "solicitar",
+      "tipo": "userTask",
+      "nome": "Solicitar reserva",
+      "responsavel": "Solicitante"
+    },
+    {
+      "id": "verificar",
+      "tipo": "task",
+      "nome": "Verificar disponibilidade",
+      "responsavel": "Secretaria"
+    },
+    {
+      "id": "decisao",
+      "tipo": "exclusiveGateway",
+      "nome": "Laboratório disponível?"
+    },
+    {
+      "id": "aprovar",
+      "tipo": "task",
+      "nome": "Aprovar reserva",
+      "responsavel": "Coordenador"
+    },
+    {
+      "id": "recusar",
+      "tipo": "task",
+      "nome": "Informar indisponibilidade",
+      "responsavel": "Secretaria"
+    },
+    {
+      "id": "fim",
+      "tipo": "endEvent",
+      "nome": "Reserva concluída"
+    },
+    {
+      "id": "fim2",
+      "tipo": "endEvent",
+      "nome": "Pedido recusado"
+    }
+  ],
+  "conexoes": [
+    {
+      "origem": "inicio",
+      "destino": "solicitar"
+    },
+    {
+      "origem": "solicitar",
+      "destino": "verificar"
+    },
+    {
+      "origem": "verificar",
+      "destino": "decisao"
+    },
+    {
+      "origem": "decisao",
+      "destino": "aprovar",
+      "condicao": "Sim"
+    },
+    {
+      "origem": "decisao",
+      "destino": "recusar",
+      "condicao": "Não"
+    },
+    {
+      "origem": "aprovar",
+      "destino": "fim"
+    },
+    {
+      "origem": "recusar",
+      "destino": "fim2"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "processo": "Reserva de Sala ou Laboratório",
+  "elementos": [
+    {"id": "inicio", "tipo": "startEvent", "nome": "Necessidade de reserva"},
+    {"id": "preencher", "tipo": "userTask", "nome": "Preencher formulário de requisição", "responsavel": "Solicitante"},
+    {"id": "verificar", "tipo": "task", "nome": "Verificar disponibilidade na agenda", "responsavel": "Secretaria"},
+    {"id": "g_disp", "tipo": "exclusiveGateway", "nome": "Espaço disponível?"},
+    {"id": "informar_indisp", "tipo": "task", "nome": "Informar indisponibilidade", "responsavel": "Secretaria"},
+    {"id": "fim_indisp", "tipo": "endEvent", "nome": "Pedido encerrado"},
+    {"id": "encaminhar", "tipo": "task", "nome": "Encaminhar requisição ao coordenador", "responsavel": "Secretaria"},
+    {"id": "analisar", "tipo": "task", "nome": "Analisar requisição", "responsavel": "Coordenador"},
+    {"id": "g_aprov", "tipo": "exclusiveGateway", "nome": "Requisição aprovada?"},
+    {"id": "registrar", "tipo": "task", "nome": "Registrar reserva e confirmar", "responsavel": "Secretaria"},
+    {"id": "informar_neg", "tipo": "task", "nome": "Informar negativa", "responsavel": "Secretaria"},
+    {"id": "fim_neg", "tipo": "endEvent", "nome": "Pedido negado"},
+    {"id": "preparar", "tipo": "task", "nome": "Preparar espaço e liberar chave", "responsavel": "Técnico de laboratório"},
+    {"id": "fim", "tipo": "endEvent", "nome": "Reserva concluída"}
+  ],
+  "conexoes": [
+    {"origem": "inicio", "destino": "preencher"},
+    {"origem": "preencher", "destino": "verificar"},
+    {"origem": "verificar", "destino": "g_disp"},
+    {"origem": "g_disp", "destino": "informar_indisp", "condicao": "Não"},
+    {"origem": "g_disp", "destino": "encaminhar", "condicao": "Sim"},
+    {"origem": "informar_indisp", "destino": "fim_indisp"},
+    {"origem": "encaminhar", "destino": "analisar"},
+    {"origem": "analisar", "destino": "g_aprov"},
+    {"origem": "g_aprov", "destino": "registrar", "condicao": "Sim"},
+    {"origem": "g_aprov", "destino": "informar_neg", "condicao": "Não"},
+    {"origem": "registrar", "destino": "preparar"},
+    {"origem": "informar_neg", "destino": "fim_neg"},
+    {"origem": "preparar", "destino": "fim"}
+  ]
+}

@@ -1,0 +1,443 @@
+{
+  "name": "Requisição de Sala ou Laboratório",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b0b8340f-7e95-4fab-8d47-f6ebdf1512ae",
+              "name": "=mensagem_sucesso",
+              "value": "=Olá! Sua solicitação foi concluída e registrada com sucesso.<br><br>\n<b>Espaço:</b> {{ $('Normalizar').item.json.sala }}<br>\n<b>Data:</b> {{ $('Normalizar').item.json.data_br }}<br>\n<b>Horário:</b> {{ $('Normalizar').item.json.inicio.slice(0,5) }} às {{ $('Normalizar').item.json.fim.slice(0,5) }}<br><br>\nA entrega da chave é feita presencialmente com o Assistente Administrativo.<br><br>\nAtenciosamente,<br>Reserva de Espaços - DACC IF Sudeste MG",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        192,
+        -432
+      ],
+      "id": "01fbadcc-935e-49d5-a528-73f61fc42455",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "94a19ead-2517-4063-acc6-c2020f39013c",
+              "name": "mensagem_recusada",
+              "value": "=Sua solicitação foi concluída, mas a {{ $('Normalizar').item.json.sala }} não está disponível em {{ $('Normalizar').item.json.data_br }}, das {{ $('Normalizar').item.json.inicio.slice(0,5) }} às {{ $('Normalizar').item.json.fim.slice(0,5) }}. Por favor, envie uma nova solicitação em outra data, horário ou sala.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        64,
+        -224
+      ],
+      "id": "254df058-8678-4309-9b05-adcda8eaaa65",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4ab97434-a8ce-4f22-9b38-7e3e344b5e8a",
+              "leftValue": "={{ $json.conflitos }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -32,
+        -336
+      ],
+      "id": "35258dbf-4f1b-4507-96f9-cc649d3218c7",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT COUNT(*) AS conflitos\nFROM reservas\nWHERE sala_pretendida = '{{ $json.sala }}'\nAND data_reserva = '{{ $json.data }}'\nAND horario_inicio < '{{ $json.fim }}'\nAND horario_fim > '{{ $json.inicio }}';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        -160,
+        -304
+      ],
+      "id": "79ac3f50-60ef-4e54-ad50-fd2ad2f74335",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "vs4FIBvfZG9gXkHw",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1HKubIHXB2vb2D2Y6TnqNX6YS8dKtcP6Ln7Zv8oT-P2Y",
+          "mode": "list",
+          "cachedResultName": "Requisiçao de Salas e Laboratorios",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HKubIHXB2vb2D2Y6TnqNX6YS8dKtcP6Ln7Zv8oT-P2Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 565350800,
+          "mode": "list",
+          "cachedResultName": "Respostas ao formulário 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HKubIHXB2vb2D2Y6TnqNX6YS8dKtcP6Ln7Zv8oT-P2Y/edit#gid=565350800"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        -304
+      ],
+      "id": "1749839d-454b-46a4-8a32-9dc944a955b0",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "f5hw5cacFcACWp0m",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets Trigger').first().json['Endereço de e-mail'] }}",
+        "subject": "Solicitação de sala/laboratório concluída",
+        "message": "={{ $json.mensagem_sucesso }}",
+        "options": {
+          "senderName": "Reserva de Espaços - DACC IF Sudeste MG"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        -336
+      ],
+      "id": "ab8f99a8-9974-40dd-917a-f05c9c249bfe",
+      "name": "Send a message",
+      "webhookId": "a40e6af4-3d45-4c9c-9891-269abcc0df9d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WdKOEpZuXI8hoCpc",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets Trigger').item.json['Endereço de e-mail'] }}",
+        "subject": "Solicitação de sala/laboratório concluída",
+        "message": "={{ $json.mensagem_recusada }}",
+        "options": {
+          "senderName": "Reserva de Espaços - DACC IF Sudeste MG"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        -208
+      ],
+      "id": "bb01ce1f-3a35-4a28-88c4-ee31ee53df9a",
+      "name": "Send a message1",
+      "webhookId": "d365c7ed-b66e-46eb-820f-c2afafce31eb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WdKOEpZuXI8hoCpc",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "91d6a239-ca3f-421b-9b8e-ab5fd6c13096",
+              "leftValue": "={{ $json.dia_semana >= 1 && $json.dia_semana <= 5 && $json.data >= $now.setZone('America/Sao_Paulo').toFormat('yyyy-MM-dd') && !!$json.inicio && !!$json.fim }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -288,
+        -304
+      ],
+      "id": "18fb4589-f0be-4beb-9ec2-fb7b7de78ff7",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "94a19ead-2517-4063-acc6-c2020f39013c",
+              "name": "mensagem_recusada",
+              "value": "=Sua solicitação foi concluída, mas não pôde ser aceita: a data escolhida ({{ $json.data_br }}) não é válida para reserva. Os espaços só podem ser reservados de segunda a sexta-feira, para datas futuras. Por favor, envie uma nova solicitação escolhendo um dia útil.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -176,
+        -160
+      ],
+      "id": "d242e599-db79-460a-a618-cf0d37f4949d",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO reservas (sala_pretendida, data_reserva, horario, horario_inicio, horario_fim, nome_solicitante, status, motivo)\nVALUES (\n  '{{ $('Normalizar').item.json.sala }}',\n  '{{ $('Normalizar').item.json.data }}',\n  '{{ $('Normalizar').item.json.inicio }}',\n  '{{ $('Normalizar').item.json.inicio }}',\n  '{{ $('Normalizar').item.json.fim }}',\n  '{{ ($('Normalizar').item.json.nome || \"\").replace(/'/g, \"''\") }}',\n  'solicitado',\n  '{{ ($('Normalizar').item.json.motivo || \"\").replace(/'/g, \"''\") }}'\n);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        80,
+        -432
+      ],
+      "id": "00d459ea-c2ed-4c13-b666-68881abb2b25",
+      "name": "Execute a SQL query1",
+      "executeOnce": false,
+      "credentials": {
+        "postgres": {
+          "id": "vs4FIBvfZG9gXkHw",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Normalizar').item.json.email }}",
+        "subject": "Solicitação concluída - reserva não aprovada",
+        "message": "={{ $json.mensagem_recusada }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -48,
+        -128
+      ],
+      "id": "b3943815-4b04-4ce8-9971-7e7da20ec90c",
+      "name": "Send a message2",
+      "webhookId": "4eb47a1d-ec1e-4c06-bb52-4a1f1d740f50",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WdKOEpZuXI8hoCpc",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const sem = s => String(s).normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\").toLowerCase();\nconst achar = (termos, excluir = []) => {\n  const k = Object.keys($json).find(c =>\n    termos.some(t => sem(c).includes(t)) &&\n    !excluir.some(e => sem(c).includes(e)) &&\n    $json[c] !== \"\" && $json[c] != null\n  );\n  return k ? $json[k] : null;\n};\n\nconst horario = achar([\"horario\"]);\nconst m = String(horario).match(/(\\d{1,2}:\\d{2})\\s*-\\s*(\\d{1,2}:\\d{2})/);\nconst dataBr = achar([\"data\"], [\"carimbo\"]);\nconst [d, mes, a] = String(dataBr).split(\"/\");\nconst data = `${a}-${String(mes).padStart(2, \"0\")}-${String(d).padStart(2, \"0\")}`;\n\nreturn { json: {\n  nome: achar([\"nome\"]),\n  email: achar([\"mail\"]),\n  sala: achar([\"sala\", \"laboratorio\"]),\n  data_br: dataBr,\n  data,\n  dia_semana: new Date(data + \"T12:00:00\").getDay(),\n  inicio: m ? m[1].padStart(5, \"0\") + \":00\" : null,\n  fim: m ? m[2].padStart(5, \"0\") + \":00\" : null,\n  motivo: $json[\"Motivo da reserva\"] || $json[\"Motivo da Reserva\"] || achar([\"motivo\", \"opcoes\"])\n}};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        -224
+      ],
+      "id": "50d1b3d5-1d3e-440b-9e35-2ad20fa59ccc",
+      "name": "Normalizar"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Normalizar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "14d50f84-78ab-46c9-bc61-f987362563fe",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aa1a482defd813e84b7907191e01d47e61b835a6ff50dc74384a3a70a2d307a6"
+  },
+  "nodeGroups": [],
+  "id": "va4UMTEp5dYFqqF9",
+  "tags": []
+}
