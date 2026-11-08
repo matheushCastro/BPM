@@ -1,270 +1,261 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.50.1">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="BPMN Modeler" exporterVersion="1.0">
   <collaboration id="Collaboration_1">
-    <participant id="Participant_1" name="Reserva de Sala ou Laboratório" processRef="Process_1" />
+    <participant id="Participant_Process" name="Reserva de Sala ou Laboratório" processRef="Process_1" />
   </collaboration>
   <process id="Process_1" isExecutable="false">
     <laneSet id="LaneSet_1">
-      <lane id="Lane_Tecnico" name="Técnico de laboratório">
-        <flowNodeRef>Activity_PrepararEspaco</flowNodeRef>
-      </lane>
-      <lane id="Lane_Coordenador" name="Coordenador">
-        <flowNodeRef>Activity_AnalisarRequisicao</flowNodeRef>
-        <flowNodeRef>Gateway_Aprovado</flowNodeRef>
-      </lane>
-      <lane id="Lane_Secretaria" name="Secretaria">
-        <flowNodeRef>Activity_PreencherRequisicao</flowNodeRef>
-        <flowNodeRef>Activity_VerificarDisponibilidade</flowNodeRef>
-        <flowNodeRef>Gateway_Disponivel</flowNodeRef>
-        <flowNodeRef>Activity_InformarIndisponibilidade</flowNodeRef>
-        <flowNodeRef>Activity_EncaminharRequisicao</flowNodeRef>
-        <flowNodeRef>Activity_InformarNegativa</flowNodeRef>
-        <flowNodeRef>Activity_RegistrarReserva</flowNodeRef>
-        <flowNodeRef>Activity_EnviarConfirmacao</flowNodeRef>
-      </lane>
       <lane id="Lane_Solicitante" name="Solicitante">
         <flowNodeRef>StartEvent_1</flowNodeRef>
-        <flowNodeRef>Event_FimIndisponivel</flowNodeRef>
-        <flowNodeRef>Event_FimNegado</flowNodeRef>
-        <flowNodeRef>Event_FimConcluido</flowNodeRef>
+        <flowNodeRef>Activity_Informa_Solicitante1</flowNodeRef>
+        <flowNodeRef>Activity_Informa_Solicitante2</flowNodeRef>
+        <flowNodeRef>Activity_Recebe_Chave</flowNodeRef>
+        <flowNodeRef>EndEvent_Indisponivel</flowNodeRef>
+        <flowNodeRef>EndEvent_Negado</flowNodeRef>
+        <flowNodeRef>EndEvent_Concluido</flowNodeRef>
+      </lane>
+      <lane id="Lane_Secretaria" name="Secretaria">
+        <flowNodeRef>Activity_Preenche_Formulario</flowNodeRef>
+        <flowNodeRef>Activity_Verifica_Agenda</flowNodeRef>
+        <flowNodeRef>Gateway_Disponivel</flowNodeRef>
+        <flowNodeRef>Activity_Encaminha_Coordenador</flowNodeRef>
+        <flowNodeRef>Activity_Registra_Reserva</flowNodeRef>
+        <flowNodeRef>Activity_Envia_Confirmacao</flowNodeRef>
+      </lane>
+      <lane id="Lane_Coordenador" name="Coordenador">
+        <flowNodeRef>Activity_Analisa_Requisicao</flowNodeRef>
+        <flowNodeRef>Gateway_Aprova</flowNodeRef>
+      </lane>
+      <lane id="Lane_Tecnico" name="Técnico de laboratório">
+        <flowNodeRef>Activity_Prepara_Espaco</flowNodeRef>
       </lane>
     </laneSet>
-    <startEvent id="StartEvent_1" name="Início">
+    <startEvent id="StartEvent_1" name="Início da Reserva">
       <outgoing>Flow_1</outgoing>
     </startEvent>
-    <userTask id="Activity_PreencherRequisicao" name="Preencher formulário requisição">
+    <userTask id="Activity_Preenche_Formulario" name="Preencher formulário requisição">
       <incoming>Flow_1</incoming>
       <outgoing>Flow_2</outgoing>
     </userTask>
-    <userTask id="Activity_VerificarDisponibilidade" name="Verificar agenda espaço">
+    <userTask id="Activity_Verifica_Agenda" name="Verificar agenda espaço">
       <incoming>Flow_2</incoming>
       <outgoing>Flow_3</outgoing>
     </userTask>
     <exclusiveGateway id="Gateway_Disponivel" name="Espaço disponível?">
       <incoming>Flow_3</incoming>
-      <outgoing>Flow_NaoDisponivel</outgoing>
-      <outgoing>Flow_SimDisponivel</outgoing>
+      <outgoing>Flow_Sim1</outgoing>
+      <outgoing>Flow_Nao1</outgoing>
     </exclusiveGateway>
-    <sendTask id="Activity_InformarIndisponibilidade" name="Informar indisponibilidade solicitante">
-      <incoming>Flow_NaoDisponivel</incoming>
+    <sendTask id="Activity_Informa_Solicitante1" name="Informar solicitante indisponibilidade">
+      <incoming>Flow_Nao1</incoming>
+      <outgoing>Flow_End1</outgoing>
+    </sendTask>
+    <userTask id="Activity_Encaminha_Coordenador" name="Encaminhar requisição coordenador">
+      <incoming>Flow_Sim1</incoming>
       <outgoing>Flow_4</outgoing>
-    </sendTask>
-    <endEvent id="Event_FimIndisponivel" name="Fim Indisponível">
+    </userTask>
+    <userTask id="Activity_Analisa_Requisicao" name="Analisar requisição">
       <incoming>Flow_4</incoming>
-    </endEvent>
-    <sendTask id="Activity_EncaminharRequisicao" name="Encaminhar requisição coordenador">
-      <incoming>Flow_SimDisponivel</incoming>
       <outgoing>Flow_5</outgoing>
-    </sendTask>
-    <userTask id="Activity_AnalisarRequisicao" name="Analisar requisição">
+    </userTask>
+    <exclusiveGateway id="Gateway_Aprova" name="Aprovar requisição?">
       <incoming>Flow_5</incoming>
+      <outgoing>Flow_Sim2</outgoing>
+      <outgoing>Flow_Nao2</outgoing>
+    </exclusiveGateway>
+    <sendTask id="Activity_Informa_Solicitante2" name="Informar solicitante recusa">
+      <incoming>Flow_Nao2</incoming>
+      <outgoing>Flow_End2</outgoing>
+    </sendTask>
+    <userTask id="Activity_Registra_Reserva" name="Registrar reserva agenda">
+      <incoming>Flow_Sim2</incoming>
       <outgoing>Flow_6</outgoing>
     </userTask>
-    <exclusiveGateway id="Gateway_Aprovado" name="Aprovar requisição?">
+    <sendTask id="Activity_Envia_Confirmacao" name="Enviar confirmação solicitante">
       <incoming>Flow_6</incoming>
-      <outgoing>Flow_NaoAprovado</outgoing>
-      <outgoing>Flow_SimAprovado</outgoing>
-    </exclusiveGateway>
-    <sendTask id="Activity_InformarNegativa" name="Informar negativa solicitante">
-      <incoming>Flow_NaoAprovado</incoming>
       <outgoing>Flow_7</outgoing>
     </sendTask>
-    <endEvent id="Event_FimNegado" name="Fim Negado">
+    <userTask id="Activity_Prepara_Espaco" name="Preparar espaço">
       <incoming>Flow_7</incoming>
-    </endEvent>
-    <userTask id="Activity_RegistrarReserva" name="Registrar reserva agenda">
-      <incoming>Flow_SimAprovado</incoming>
       <outgoing>Flow_8</outgoing>
     </userTask>
-    <sendTask id="Activity_EnviarConfirmacao" name="Enviar confirmação solicitante">
+    <userTask id="Activity_Recebe_Chave" name="Receber chave espaço">
       <incoming>Flow_8</incoming>
-      <outgoing>Flow_9</outgoing>
-    </sendTask>
-    <userTask id="Activity_PrepararEspaco" name="Preparar espaço chave">
-      <incoming>Flow_9</incoming>
-      <outgoing>Flow_10</outgoing>
+      <outgoing>Flow_End3</outgoing>
     </userTask>
-    <endEvent id="Event_FimConcluido" name="Reserva Concluída">
-      <incoming>Flow_10</incoming>
+    <endEvent id="EndEvent_Indisponivel" name="Reserva Indisponível">
+      <incoming>Flow_End1</incoming>
     </endEvent>
-    <sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_PreencherRequisicao" />
-    <sequenceFlow id="Flow_2" sourceRef="Activity_PreencherRequisicao" targetRef="Activity_VerificarDisponibilidade" />
-    <sequenceFlow id="Flow_3" sourceRef="Activity_VerificarDisponibilidade" targetRef="Gateway_Disponivel" />
-    <sequenceFlow id="Flow_NaoDisponivel" name="Não" sourceRef="Gateway_Disponivel" targetRef="Activity_InformarIndisponibilidade" />
-    <sequenceFlow id="Flow_SimDisponivel" name="Sim" sourceRef="Gateway_Disponivel" targetRef="Activity_EncaminharRequisicao" />
-    <sequenceFlow id="Flow_4" sourceRef="Activity_InformarIndisponibilidade" targetRef="Event_FimIndisponivel" />
-    <sequenceFlow id="Flow_5" sourceRef="Activity_EncaminharRequisicao" targetRef="Activity_AnalisarRequisicao" />
-    <sequenceFlow id="Flow_6" sourceRef="Activity_AnalisarRequisicao" targetRef="Gateway_Aprovado" />
-    <sequenceFlow id="Flow_NaoAprovado" name="Não" sourceRef="Gateway_Aprovado" targetRef="Activity_InformarNegativa" />
-    <sequenceFlow id="Flow_SimAprovado" name="Sim" sourceRef="Gateway_Aprovado" targetRef="Activity_RegistrarReserva" />
-    <sequenceFlow id="Flow_7" sourceRef="Activity_InformarNegativa" targetRef="Event_FimNegado" />
-    <sequenceFlow id="Flow_8" sourceRef="Activity_RegistrarReserva" targetRef="Activity_EnviarConfirmacao" />
-    <sequenceFlow id="Flow_9" sourceRef="Activity_EnviarConfirmacao" targetRef="Activity_PrepararEspaco" />
-    <sequenceFlow id="Flow_10" sourceRef="Activity_PrepararEspaco" targetRef="Event_FimConcluido" />
+    <endEvent id="EndEvent_Negado" name="Reserva Negada">
+      <incoming>Flow_End2</incoming>
+    </endEvent>
+    <endEvent id="EndEvent_Concluido" name="Reserva Concluída">
+      <incoming>Flow_End3</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_Preenche_Formulario" />
+    <sequenceFlow id="Flow_2" sourceRef="Activity_Preenche_Formulario" targetRef="Activity_Verifica_Agenda" />
+    <sequenceFlow id="Flow_3" sourceRef="Activity_Verifica_Agenda" targetRef="Gateway_Disponivel" />
+    <sequenceFlow id="Flow_Sim1" name="Sim" sourceRef="Gateway_Disponivel" targetRef="Activity_Encaminha_Coordenador" />
+    <sequenceFlow id="Flow_Nao1" name="Não" sourceRef="Gateway_Disponivel" targetRef="Activity_Informa_Solicitante1" />
+    <sequenceFlow id="Flow_End1" sourceRef="Activity_Informa_Solicitante1" targetRef="EndEvent_Indisponivel" />
+    <sequenceFlow id="Flow_4" sourceRef="Activity_Encaminha_Coordenador" targetRef="Activity_Analisa_Requisicao" />
+    <sequenceFlow id="Flow_5" sourceRef="Activity_Analisa_Requisicao" targetRef="Gateway_Aprova" />
+    <sequenceFlow id="Flow_Sim2" name="Sim" sourceRef="Gateway_Aprova" targetRef="Activity_Registra_Reserva" />
+    <sequenceFlow id="Flow_Nao2" name="Não" sourceRef="Gateway_Aprova" targetRef="Activity_Informa_Solicitante2" />
+    <sequenceFlow id="Flow_End2" sourceRef="Activity_Informa_Solicitante2" targetRef="EndEvent_Negado" />
+    <sequenceFlow id="Flow_6" sourceRef="Activity_Registra_Reserva" targetRef="Activity_Envia_Confirmacao" />
+    <sequenceFlow id="Flow_7" sourceRef="Activity_Envia_Confirmacao" targetRef="Activity_Prepara_Espaco" />
+    <sequenceFlow id="Flow_8" sourceRef="Activity_Prepara_Espaco" targetRef="Activity_Recebe_Chave" />
+    <sequenceFlow id="Flow_End3" sourceRef="Activity_Recebe_Chave" targetRef="EndEvent_Concluido" />
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
-      <bpmndi:BPMNShape id="Participant_1_di" bpmnElement="Participant_1" isHorizontal="true">
-        <dc:Bounds x="150" y="40" width="2390" height="480" href="" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_Tecnico_di" bpmnElement="Lane_Tecnico" isHorizontal="true">
-        <dc:Bounds x="180" y="400" width="2360" height="120" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_Coordenador_di" bpmnElement="Lane_Coordenador" isHorizontal="true">
-        <dc:Bounds x="180" y="280" width="2360" height="120" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_Secretaria_di" bpmnElement="Lane_Secretaria" isHorizontal="true">
-        <dc:Bounds x="180" y="160" width="2360" height="120" />
+      <bpmndi:BPMNShape id="Participant_Process_di" bpmnElement="Participant_Process" isHorizontal="true">
+        <dc:Bounds x="40" y="40" width="2890" height="480" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Solicitante_di" bpmnElement="Lane_Solicitante" isHorizontal="true">
-        <dc:Bounds x="180" y="40" width="2360" height="120" />
+        <dc:Bounds x="70" y="40" width="2860" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Secretaria_di" bpmnElement="Lane_Secretaria" isHorizontal="true">
+        <dc:Bounds x="70" y="160" width="2860" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Coordenador_di" bpmnElement="Lane_Coordenador" isHorizontal="true">
+        <dc:Bounds x="70" y="280" width="2860" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Tecnico_di" bpmnElement="Lane_Tecnico" isHorizontal="true">
+        <dc:Bounds x="70" y="400" width="2860" height="120" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
-        <dc:Bounds x="252" y="82" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="257" y="118" width="27" height="14" />
-        </bpmndi:BPMNLabel>
+        <dc:Bounds x="110" y="82" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_PreencherRequisicao_di" bpmnElement="Activity_PreencherRequisicao">
-        <dc:Bounds x="390" y="180" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_Preenche_Formulario_di" bpmnElement="Activity_Preenche_Formulario">
+        <dc:Bounds x="280" y="180" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_VerificarDisponibilidade_di" bpmnElement="Activity_VerificarDisponibilidade">
-        <dc:Bounds x="560" y="180" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_Verifica_Agenda_di" bpmnElement="Activity_Verifica_Agenda">
+        <dc:Bounds x="450" y="180" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_Disponivel_di" bpmnElement="Gateway_Disponivel" isMarkerVisible="true">
-        <dc:Bounds x="745" y="195" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="742" y="245" width="56" height="27" />
-        </bpmndi:BPMNLabel>
+        <dc:Bounds x="645" y="195" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_InformarIndisponibilidade_di" bpmnElement="Activity_InformarIndisponibilidade">
-        <dc:Bounds x="910" y="180" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_Informa_Solicitante1_di" bpmnElement="Activity_Informa_Solicitante1">
+        <dc:Bounds x="790" y="60" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_FimIndisponivel_di" bpmnElement="Event_FimIndisponivel">
-        <dc:Bounds x="1102" y="82" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1080" y="118" width="81" height="14" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="Activity_Encaminha_Coordenador_di" bpmnElement="Activity_Encaminha_Coordenador">
+        <dc:Bounds x="790" y="180" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_EncaminharRequisicao_di" bpmnElement="Activity_EncaminharRequisicao">
-        <dc:Bounds x="910" y="180" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_Analisa_Requisicao_di" bpmnElement="Activity_Analisa_Requisicao">
+        <dc:Bounds x="960" y="300" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_AnalisarRequisicao_di" bpmnElement="Activity_AnalisarRequisicao">
-        <dc:Bounds x="1080" y="300" width="100" height="80" />
+      <bpmndi:BPMNShape id="Gateway_Aprova_di" bpmnElement="Gateway_Aprova" isMarkerVisible="true">
+        <dc:Bounds x="1155" y="315" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_Aprovado_di" bpmnElement="Gateway_Aprovado" isMarkerVisible="true">
-        <dc:Bounds x="1265" y="315" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1262" y="365" width="57" height="27" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="Activity_Informa_Solicitante2_di" bpmnElement="Activity_Informa_Solicitante2">
+        <dc:Bounds x="1300" y="60" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_InformarNegativa_di" bpmnElement="Activity_InformarNegativa">
-        <dc:Bounds x="1430" y="180" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_Registra_Reserva_di" bpmnElement="Activity_Registra_Reserva">
+        <dc:Bounds x="1300" y="180" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_FimNegado_di" bpmnElement="Event_FimNegado">
-        <dc:Bounds x="1622" y="82" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1610" y="118" width="60" height="14" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="Activity_Envia_Confirmacao_di" bpmnElement="Activity_Envia_Confirmacao">
+        <dc:Bounds x="1470" y="180" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_RegistrarReserva_di" bpmnElement="Activity_RegistrarReserva">
-        <dc:Bounds x="1430" y="180" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_Prepara_Espaco_di" bpmnElement="Activity_Prepara_Espaco">
+        <dc:Bounds x="1640" y="420" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_EnviarConfirmacao_di" bpmnElement="Activity_EnviarConfirmacao">
-        <dc:Bounds x="1600" y="180" width="100" height="80" />
+      <bpmndi:BPMNShape id="Activity_Recebe_Chave_di" bpmnElement="Activity_Recebe_Chave">
+        <dc:Bounds x="1810" y="60" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_PrepararEspaco_di" bpmnElement="Activity_PrepararEspaco">
-        <dc:Bounds x="1770" y="420" width="100" height="80" />
+      <bpmndi:BPMNShape id="EndEvent_Indisponivel_di" bpmnElement="EndEvent_Indisponivel">
+        <dc:Bounds x="992" y="82" width="36" height="36" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_FimConcluido_di" bpmnElement="Event_FimConcluido">
-        <dc:Bounds x="1962" y="82" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1955" y="118" width="50" height="27" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNShape id="EndEvent_Negado_di" bpmnElement="EndEvent_Negado">
+        <dc:Bounds x="1502" y="82" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Concluido_di" bpmnElement="EndEvent_Concluido">
+        <dc:Bounds x="2012" y="82" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
-        <di:waypoint x="270" y="100" />
-        <di:waypoint x="330" y="100" />
-        <di:waypoint x="330" y="220" />
-        <di:waypoint x="390" y="220" />
+        <di:waypoint x="146" y="100" />
+        <di:waypoint x="213" y="100" />
+        <di:waypoint x="213" y="220" />
+        <di:waypoint x="280" y="220" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
-        <di:waypoint x="490" y="220" />
-        <di:waypoint x="560" y="220" />
+        <di:waypoint x="380" y="220" />
+        <di:waypoint x="450" y="220" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
-        <di:waypoint x="660" y="220" />
-        <di:waypoint x="745" y="220" />
+        <di:waypoint x="550" y="220" />
+        <di:waypoint x="645" y="220" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_NaoDisponivel_di" bpmnElement="Flow_NaoDisponivel">
-        <di:waypoint x="795" y="220" />
-        <di:waypoint x="910" y="220" />
+      <bpmndi:BPMNEdge id="Flow_Sim1_di" bpmnElement="Flow_Sim1">
+        <di:waypoint x="695" y="220" />
+        <di:waypoint x="790" y="220" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="844" y="202" width="21" height="14" />
+          <dc:Bounds x="734" y="202" width="19" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Nao1_di" bpmnElement="Flow_Nao1">
+        <di:waypoint x="670" y="195" />
+        <di:waypoint x="670" y="100" />
+        <di:waypoint x="790" y="100" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="675" y="140" width="21" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_End1_di" bpmnElement="Flow_End1">
+        <di:waypoint x="890" y="100" />
+        <di:waypoint x="992" y="100" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
-        <di:waypoint x="1010" y="220" />
-        <di:waypoint x="1056" y="220" />
-        <di:waypoint x="1056" y="100" />
-        <di:waypoint x="1102" y="100" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_SimDisponivel_di" bpmnElement="Flow_SimDisponivel">
-        <di:waypoint x="795" y="220" />
-        <di:waypoint x="910" y="220" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="844" y="202" width="19" height="14" />
-        </bpmndi:BPMNLabel>
+        <di:waypoint x="890" y="220" />
+        <di:waypoint x="925" y="220" />
+        <di:waypoint x="925" y="340" />
+        <di:waypoint x="960" y="340" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
-        <di:waypoint x="1010" y="220" />
-        <di:waypoint x="1045" y="220" />
-        <di:waypoint x="1045" y="340" />
-        <di:waypoint x="1080" y="340" />
+        <di:waypoint x="1060" y="340" />
+        <di:waypoint x="1155" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Sim2_di" bpmnElement="Flow_Sim2">
+        <di:waypoint x="1205" y="340" />
+        <di:waypoint x="1252" y="340" />
+        <di:waypoint x="1252" y="220" />
+        <di:waypoint x="1300" y="220" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1261" y="273" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Nao2_di" bpmnElement="Flow_Nao2">
+        <di:waypoint x="1180" y="315" />
+        <di:waypoint x="1180" y="100" />
+        <di:waypoint x="1300" y="100" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1185" y="205" width="21" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_End2_di" bpmnElement="Flow_End2">
+        <di:waypoint x="1400" y="100" />
+        <di:waypoint x="1502" y="100" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
-        <di:waypoint x="1180" y="340" />
-        <di:waypoint x="1265" y="340" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_NaoAprovado_di" bpmnElement="Flow_NaoAprovado">
-        <di:waypoint x="1315" y="340" />
-        <di:waypoint x="1372" y="340" />
-        <di:waypoint x="1372" y="220" />
-        <di:waypoint x="1430" y="220" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1344" y="363" width="21" height="14" />
-        </bpmndi:BPMNLabel>
+        <di:waypoint x="1400" y="220" />
+        <di:waypoint x="1470" y="220" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
-        <di:waypoint x="1530" y="220" />
-        <di:waypoint x="1576" y="220" />
-        <di:waypoint x="1576" y="100" />
-        <di:waypoint x="1622" y="100" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_SimAprovado_di" bpmnElement="Flow_SimAprovado">
-        <di:waypoint x="1315" y="340" />
-        <di:waypoint x="1372" y="340" />
-        <di:waypoint x="1372" y="220" />
-        <di:waypoint x="1430" y="220" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1344" y="293" width="19" height="14" />
-        </bpmndi:BPMNLabel>
+        <di:waypoint x="1570" y="220" />
+        <di:waypoint x="1605" y="220" />
+        <di:waypoint x="1605" y="460" />
+        <di:waypoint x="1640" y="460" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
-        <di:waypoint x="1530" y="220" />
-        <di:waypoint x="1600" y="220" />
+        <di:waypoint x="1740" y="460" />
+        <di:waypoint x="1775" y="460" />
+        <di:waypoint x="1775" y="100" />
+        <di:waypoint x="1810" y="100" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
-        <di:waypoint x="1700" y="220" />
-        <di:waypoint x="1735" y="220" />
-        <di:waypoint x="1735" y="460" />
-        <di:waypoint x="1770" y="460" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
-        <di:waypoint x="1870" y="460" />
-        <di:waypoint x="1916" y="460" />
-        <di:waypoint x="1916" y="100" />
-        <di:waypoint x="1962" y="100" />
+      <bpmndi:BPMNEdge id="Flow_End3_di" bpmnElement="Flow_End3">
+        <di:waypoint x="1910" y="100" />
+        <di:waypoint x="2012" y="100" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
