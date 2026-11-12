@@ -1,262 +1,131 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="BPMN Modeler" exporterVersion="1.0">
-  <collaboration id="Collaboration_1">
-    <participant id="Participant_Process" name="Reserva de Sala ou Laboratório" processRef="Process_1" />
-  </collaboration>
-  <process id="Process_1" isExecutable="false">
-    <laneSet id="LaneSet_1">
-      <lane id="Lane_Solicitante" name="Solicitante">
-        <flowNodeRef>StartEvent_1</flowNodeRef>
-        <flowNodeRef>Activity_Informa_Solicitante1</flowNodeRef>
-        <flowNodeRef>Activity_Informa_Solicitante2</flowNodeRef>
-        <flowNodeRef>Activity_Recebe_Chave</flowNodeRef>
-        <flowNodeRef>EndEvent_Indisponivel</flowNodeRef>
-        <flowNodeRef>EndEvent_Negado</flowNodeRef>
-        <flowNodeRef>EndEvent_Concluido</flowNodeRef>
-      </lane>
-      <lane id="Lane_Secretaria" name="Secretaria">
-        <flowNodeRef>Activity_Preenche_Formulario</flowNodeRef>
-        <flowNodeRef>Activity_Verifica_Agenda</flowNodeRef>
-        <flowNodeRef>Gateway_Disponivel</flowNodeRef>
-        <flowNodeRef>Activity_Encaminha_Coordenador</flowNodeRef>
-        <flowNodeRef>Activity_Registra_Reserva</flowNodeRef>
-        <flowNodeRef>Activity_Envia_Confirmacao</flowNodeRef>
-      </lane>
-      <lane id="Lane_Coordenador" name="Coordenador">
-        <flowNodeRef>Activity_Analisa_Requisicao</flowNodeRef>
-        <flowNodeRef>Gateway_Aprova</flowNodeRef>
-      </lane>
-      <lane id="Lane_Tecnico" name="Técnico de laboratório">
-        <flowNodeRef>Activity_Prepara_Espaco</flowNodeRef>
-      </lane>
-    </laneSet>
-    <startEvent id="StartEvent_1" name="Início da Reserva">
-      <outgoing>Flow_1</outgoing>
-    </startEvent>
-    <userTask id="Activity_Preenche_Formulario" name="Preencher formulário requisição">
-      <incoming>Flow_1</incoming>
-      <outgoing>Flow_2</outgoing>
-    </userTask>
-    <userTask id="Activity_Verifica_Agenda" name="Verificar agenda espaço">
-      <incoming>Flow_2</incoming>
-      <outgoing>Flow_3</outgoing>
-    </userTask>
-    <exclusiveGateway id="Gateway_Disponivel" name="Espaço disponível?">
-      <incoming>Flow_3</incoming>
-      <outgoing>Flow_Sim1</outgoing>
-      <outgoing>Flow_Nao1</outgoing>
-    </exclusiveGateway>
-    <sendTask id="Activity_Informa_Solicitante1" name="Informar solicitante indisponibilidade">
-      <incoming>Flow_Nao1</incoming>
-      <outgoing>Flow_End1</outgoing>
-    </sendTask>
-    <userTask id="Activity_Encaminha_Coordenador" name="Encaminhar requisição coordenador">
-      <incoming>Flow_Sim1</incoming>
-      <outgoing>Flow_4</outgoing>
-    </userTask>
-    <userTask id="Activity_Analisa_Requisicao" name="Analisar requisição">
-      <incoming>Flow_4</incoming>
-      <outgoing>Flow_5</outgoing>
-    </userTask>
-    <exclusiveGateway id="Gateway_Aprova" name="Aprovar requisição?">
-      <incoming>Flow_5</incoming>
-      <outgoing>Flow_Sim2</outgoing>
-      <outgoing>Flow_Nao2</outgoing>
-    </exclusiveGateway>
-    <sendTask id="Activity_Informa_Solicitante2" name="Informar solicitante recusa">
-      <incoming>Flow_Nao2</incoming>
-      <outgoing>Flow_End2</outgoing>
-    </sendTask>
-    <userTask id="Activity_Registra_Reserva" name="Registrar reserva agenda">
-      <incoming>Flow_Sim2</incoming>
-      <outgoing>Flow_6</outgoing>
-    </userTask>
-    <sendTask id="Activity_Envia_Confirmacao" name="Enviar confirmação solicitante">
-      <incoming>Flow_6</incoming>
-      <outgoing>Flow_7</outgoing>
-    </sendTask>
-    <userTask id="Activity_Prepara_Espaco" name="Preparar espaço">
-      <incoming>Flow_7</incoming>
-      <outgoing>Flow_8</outgoing>
-    </userTask>
-    <userTask id="Activity_Recebe_Chave" name="Receber chave espaço">
-      <incoming>Flow_8</incoming>
-      <outgoing>Flow_End3</outgoing>
-    </userTask>
-    <endEvent id="EndEvent_Indisponivel" name="Reserva Indisponível">
-      <incoming>Flow_End1</incoming>
-    </endEvent>
-    <endEvent id="EndEvent_Negado" name="Reserva Negada">
-      <incoming>Flow_End2</incoming>
-    </endEvent>
-    <endEvent id="EndEvent_Concluido" name="Reserva Concluída">
-      <incoming>Flow_End3</incoming>
-    </endEvent>
-    <sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Activity_Preenche_Formulario" />
-    <sequenceFlow id="Flow_2" sourceRef="Activity_Preenche_Formulario" targetRef="Activity_Verifica_Agenda" />
-    <sequenceFlow id="Flow_3" sourceRef="Activity_Verifica_Agenda" targetRef="Gateway_Disponivel" />
-    <sequenceFlow id="Flow_Sim1" name="Sim" sourceRef="Gateway_Disponivel" targetRef="Activity_Encaminha_Coordenador" />
-    <sequenceFlow id="Flow_Nao1" name="Não" sourceRef="Gateway_Disponivel" targetRef="Activity_Informa_Solicitante1" />
-    <sequenceFlow id="Flow_End1" sourceRef="Activity_Informa_Solicitante1" targetRef="EndEvent_Indisponivel" />
-    <sequenceFlow id="Flow_4" sourceRef="Activity_Encaminha_Coordenador" targetRef="Activity_Analisa_Requisicao" />
-    <sequenceFlow id="Flow_5" sourceRef="Activity_Analisa_Requisicao" targetRef="Gateway_Aprova" />
-    <sequenceFlow id="Flow_Sim2" name="Sim" sourceRef="Gateway_Aprova" targetRef="Activity_Registra_Reserva" />
-    <sequenceFlow id="Flow_Nao2" name="Não" sourceRef="Gateway_Aprova" targetRef="Activity_Informa_Solicitante2" />
-    <sequenceFlow id="Flow_End2" sourceRef="Activity_Informa_Solicitante2" targetRef="EndEvent_Negado" />
-    <sequenceFlow id="Flow_6" sourceRef="Activity_Registra_Reserva" targetRef="Activity_Envia_Confirmacao" />
-    <sequenceFlow id="Flow_7" sourceRef="Activity_Envia_Confirmacao" targetRef="Activity_Prepara_Espaco" />
-    <sequenceFlow id="Flow_8" sourceRef="Activity_Prepara_Espaco" targetRef="Activity_Recebe_Chave" />
-    <sequenceFlow id="Flow_End3" sourceRef="Activity_Recebe_Chave" targetRef="EndEvent_Concluido" />
-  </process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
-      <bpmndi:BPMNShape id="Participant_Process_di" bpmnElement="Participant_Process" isHorizontal="true">
-        <dc:Bounds x="40" y="40" width="2890" height="480" />
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.50.1">
+  <bpmn:collaboration id="Collaboration_1">
+    <bpmn:participant id="Pool_1" name="POP_reserva_sala" processRef="Process_1" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_1" name="POP_reserva_sala" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_1" name="Atividades">
+        <bpmn:flowNodeRef>Inicio</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Etapa_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Etapa_2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Etapa_3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Etapa_4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Etapa_5</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Etapa_6</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Fim</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Inicio" name="Início">
+      <bpmn:outgoing>F_Inicio_Etapa_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Etapa_1" name="O solicitante preenche o formulário">
+      <bpmn:documentation>O solicitante preenche o formulário de requisição informando o espaço desejado, a data, o horário e a finalidade de uso.</bpmn:documentation>
+      <bpmn:incoming>F_Inicio_Etapa_1</bpmn:incoming>
+      <bpmn:outgoing>F_Etapa_1_Etapa_2</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Etapa_2" name="A secretaria recebe a requisição">
+      <bpmn:documentation>A secretaria recebe a requisição e verifica na agenda se o espaço está disponível na data e no horário pedidos.</bpmn:documentation>
+      <bpmn:incoming>F_Etapa_1_Etapa_2</bpmn:incoming>
+      <bpmn:outgoing>F_Etapa_2_Etapa_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Etapa_3" name="Se o espaço estiver indisponível">
+      <bpmn:documentation>Se o espaço estiver indisponível, a secretaria informa o solicitante sobre a indisponibilidade e o processo é encerrado.</bpmn:documentation>
+      <bpmn:incoming>F_Etapa_2_Etapa_3</bpmn:incoming>
+      <bpmn:outgoing>F_Etapa_3_Etapa_4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Etapa_4" name="Se o espaço estiver disponível">
+      <bpmn:documentation>Se o espaço estiver disponível, a secretaria encaminha a requisição ao coordenador para aprovação.</bpmn:documentation>
+      <bpmn:incoming>F_Etapa_3_Etapa_4</bpmn:incoming>
+      <bpmn:outgoing>F_Etapa_4_Etapa_5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Etapa_5" name="O coordenador analisa a requisição">
+      <bpmn:documentation>O coordenador analisa a requisição. Se aprovar, a secretaria registra a reserva na agenda e envia a confirmação ao solicitante. Se negar, a secretaria informa o solicitante e o processo é encerrado.</bpmn:documentation>
+      <bpmn:incoming>F_Etapa_4_Etapa_5</bpmn:incoming>
+      <bpmn:outgoing>F_Etapa_5_Etapa_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Etapa_6" name="No dia da reserva">
+      <bpmn:documentation>No dia da reserva, o técnico de laboratório prepara o espaço e libera a chave ao solicitante. O processo termina com a reserva concluída.</bpmn:documentation>
+      <bpmn:incoming>F_Etapa_5_Etapa_6</bpmn:incoming>
+      <bpmn:outgoing>F_Etapa_6_Fim</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="Fim" name="Fim">
+      <bpmn:incoming>F_Etapa_6_Fim</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="F_Inicio_Etapa_1" sourceRef="Inicio" targetRef="Etapa_1" />
+    <bpmn:sequenceFlow id="F_Etapa_1_Etapa_2" sourceRef="Etapa_1" targetRef="Etapa_2" />
+    <bpmn:sequenceFlow id="F_Etapa_2_Etapa_3" sourceRef="Etapa_2" targetRef="Etapa_3" />
+    <bpmn:sequenceFlow id="F_Etapa_3_Etapa_4" sourceRef="Etapa_3" targetRef="Etapa_4" />
+    <bpmn:sequenceFlow id="F_Etapa_4_Etapa_5" sourceRef="Etapa_4" targetRef="Etapa_5" />
+    <bpmn:sequenceFlow id="F_Etapa_5_Etapa_6" sourceRef="Etapa_5" targetRef="Etapa_6" />
+    <bpmn:sequenceFlow id="F_Etapa_6_Fim" sourceRef="Etapa_6" targetRef="Fim" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="D_1">
+    <bpmndi:BPMNPlane id="P_1" bpmnElement="Collaboration_1">
+      <bpmndi:BPMNShape id="S_Pool_1" bpmnElement="Pool_1" isHorizontal="true">
+        <dc:Bounds x="160" y="110" width="1312" height="200" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_Solicitante_di" bpmnElement="Lane_Solicitante" isHorizontal="true">
-        <dc:Bounds x="70" y="40" width="2860" height="120" />
+      <bpmndi:BPMNShape id="S_Lane_1" bpmnElement="Lane_1" isHorizontal="true">
+        <dc:Bounds x="190" y="110" width="1282" height="200" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_Secretaria_di" bpmnElement="Lane_Secretaria" isHorizontal="true">
-        <dc:Bounds x="70" y="160" width="2860" height="120" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_Coordenador_di" bpmnElement="Lane_Coordenador" isHorizontal="true">
-        <dc:Bounds x="70" y="280" width="2860" height="120" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_Tecnico_di" bpmnElement="Lane_Tecnico" isHorizontal="true">
-        <dc:Bounds x="70" y="400" width="2860" height="120" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
-        <dc:Bounds x="110" y="82" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_Preenche_Formulario_di" bpmnElement="Activity_Preenche_Formulario">
-        <dc:Bounds x="280" y="180" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_Verifica_Agenda_di" bpmnElement="Activity_Verifica_Agenda">
-        <dc:Bounds x="450" y="180" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_Disponivel_di" bpmnElement="Gateway_Disponivel" isMarkerVisible="true">
-        <dc:Bounds x="645" y="195" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_Informa_Solicitante1_di" bpmnElement="Activity_Informa_Solicitante1">
-        <dc:Bounds x="790" y="60" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_Encaminha_Coordenador_di" bpmnElement="Activity_Encaminha_Coordenador">
-        <dc:Bounds x="790" y="180" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_Analisa_Requisicao_di" bpmnElement="Activity_Analisa_Requisicao">
-        <dc:Bounds x="960" y="300" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_Aprova_di" bpmnElement="Gateway_Aprova" isMarkerVisible="true">
-        <dc:Bounds x="1155" y="315" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_Informa_Solicitante2_di" bpmnElement="Activity_Informa_Solicitante2">
-        <dc:Bounds x="1300" y="60" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_Registra_Reserva_di" bpmnElement="Activity_Registra_Reserva">
-        <dc:Bounds x="1300" y="180" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_Envia_Confirmacao_di" bpmnElement="Activity_Envia_Confirmacao">
-        <dc:Bounds x="1470" y="180" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_Prepara_Espaco_di" bpmnElement="Activity_Prepara_Espaco">
-        <dc:Bounds x="1640" y="420" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_Recebe_Chave_di" bpmnElement="Activity_Recebe_Chave">
-        <dc:Bounds x="1810" y="60" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_Indisponivel_di" bpmnElement="EndEvent_Indisponivel">
-        <dc:Bounds x="992" y="82" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_Negado_di" bpmnElement="EndEvent_Negado">
-        <dc:Bounds x="1502" y="82" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_Concluido_di" bpmnElement="EndEvent_Concluido">
-        <dc:Bounds x="2012" y="82" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
-        <di:waypoint x="146" y="100" />
-        <di:waypoint x="213" y="100" />
-        <di:waypoint x="213" y="220" />
-        <di:waypoint x="280" y="220" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
-        <di:waypoint x="380" y="220" />
-        <di:waypoint x="450" y="220" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
-        <di:waypoint x="550" y="220" />
-        <di:waypoint x="645" y="220" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Sim1_di" bpmnElement="Flow_Sim1">
-        <di:waypoint x="695" y="220" />
-        <di:waypoint x="790" y="220" />
+      <bpmndi:BPMNShape id="S_Inicio" bpmnElement="Inicio">
+        <dc:Bounds x="280" y="192" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="734" y="202" width="19" height="14" />
+          <dc:Bounds x="285" y="228" width="27" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Nao1_di" bpmnElement="Flow_Nao1">
-        <di:waypoint x="670" y="195" />
-        <di:waypoint x="670" y="100" />
-        <di:waypoint x="790" y="100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Etapa_1" bpmnElement="Etapa_1">
+        <dc:Bounds x="366" y="170" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Etapa_2" bpmnElement="Etapa_2">
+        <dc:Bounds x="536" y="170" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Etapa_3" bpmnElement="Etapa_3">
+        <dc:Bounds x="706" y="170" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Etapa_4" bpmnElement="Etapa_4">
+        <dc:Bounds x="876" y="170" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Etapa_5" bpmnElement="Etapa_5">
+        <dc:Bounds x="1046" y="170" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Etapa_6" bpmnElement="Etapa_6">
+        <dc:Bounds x="1216" y="170" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Fim" bpmnElement="Fim">
+        <dc:Bounds x="1386" y="192" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="675" y="140" width="21" height="14" />
+          <dc:Bounds x="1395" y="228" width="19" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_F_Inicio_Etapa_1" bpmnElement="F_Inicio_Etapa_1">
+        <di:waypoint x="316" y="210" />
+        <di:waypoint x="366" y="210" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_End1_di" bpmnElement="Flow_End1">
-        <di:waypoint x="890" y="100" />
-        <di:waypoint x="992" y="100" />
+      <bpmndi:BPMNEdge id="E_F_Etapa_1_Etapa_2" bpmnElement="F_Etapa_1_Etapa_2">
+        <di:waypoint x="486" y="210" />
+        <di:waypoint x="536" y="210" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
-        <di:waypoint x="890" y="220" />
-        <di:waypoint x="925" y="220" />
-        <di:waypoint x="925" y="340" />
-        <di:waypoint x="960" y="340" />
+      <bpmndi:BPMNEdge id="E_F_Etapa_2_Etapa_3" bpmnElement="F_Etapa_2_Etapa_3">
+        <di:waypoint x="656" y="210" />
+        <di:waypoint x="706" y="210" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
-        <di:waypoint x="1060" y="340" />
-        <di:waypoint x="1155" y="340" />
+      <bpmndi:BPMNEdge id="E_F_Etapa_3_Etapa_4" bpmnElement="F_Etapa_3_Etapa_4">
+        <di:waypoint x="826" y="210" />
+        <di:waypoint x="876" y="210" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Sim2_di" bpmnElement="Flow_Sim2">
-        <di:waypoint x="1205" y="340" />
-        <di:waypoint x="1252" y="340" />
-        <di:waypoint x="1252" y="220" />
-        <di:waypoint x="1300" y="220" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1261" y="273" width="19" height="14" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNEdge id="E_F_Etapa_4_Etapa_5" bpmnElement="F_Etapa_4_Etapa_5">
+        <di:waypoint x="996" y="210" />
+        <di:waypoint x="1046" y="210" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_Nao2_di" bpmnElement="Flow_Nao2">
-        <di:waypoint x="1180" y="315" />
-        <di:waypoint x="1180" y="100" />
-        <di:waypoint x="1300" y="100" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1185" y="205" width="21" height="14" />
-        </bpmndi:BPMNLabel>
+      <bpmndi:BPMNEdge id="E_F_Etapa_5_Etapa_6" bpmnElement="F_Etapa_5_Etapa_6">
+        <di:waypoint x="1166" y="210" />
+        <di:waypoint x="1216" y="210" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_End2_di" bpmnElement="Flow_End2">
-        <di:waypoint x="1400" y="100" />
-        <di:waypoint x="1502" y="100" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
-        <di:waypoint x="1400" y="220" />
-        <di:waypoint x="1470" y="220" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
-        <di:waypoint x="1570" y="220" />
-        <di:waypoint x="1605" y="220" />
-        <di:waypoint x="1605" y="460" />
-        <di:waypoint x="1640" y="460" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
-        <di:waypoint x="1740" y="460" />
-        <di:waypoint x="1775" y="460" />
-        <di:waypoint x="1775" y="100" />
-        <di:waypoint x="1810" y="100" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_End3_di" bpmnElement="Flow_End3">
-        <di:waypoint x="1910" y="100" />
-        <di:waypoint x="2012" y="100" />
+      <bpmndi:BPMNEdge id="E_F_Etapa_6_Fim" bpmnElement="F_Etapa_6_Fim">
+        <di:waypoint x="1336" y="210" />
+        <di:waypoint x="1386" y="210" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
-</definitions>
+</bpmn:definitions>
