@@ -8,7 +8,7 @@ if not os.path.exists(arquivo):
     print(f"Erro: arquivo '{arquivo}' não encontrado.")
     exit(1)
 
-PADRAO = re.compile(r'^(\d+)\s*[.)]\s*(.+)')   # verifica se o texto e padronizado 
+PADRAO = re.compile(r'^(\d+)\s*[.)]\s*(.+)')   #    um parágrafo que começa com o próximo número esperado (1,2 )
 
 # 1) Ler as etapas. Um passo é:
 #    um item de lista do Word (marcador ou numeração automática), OU
@@ -20,7 +20,7 @@ for p in Document(arquivo).paragraphs:
     linha = p.text.strip()
     if not linha:
         continue
-
+#testando git
     pPr = p._p.pPr
     estilo = pPr.pStyle.val.lower() if (pPr is not None and pPr.pStyle is not None) else ""
     eh_titulo = estilo.startswith(("heading", "ttulo", "título", "title"))
@@ -35,7 +35,7 @@ for p in Document(arquivo).paragraphs:
     if eh_lista:
         etapas.append(linha)                    # item de lista = um passo
     elif m and int(m.group(1)) == len(etapas) + 1:
-        etapas.append(m.group(2).strip())       # número esperado (1, 2, 3...) = um passo
+        etapas.append(m.group(2).strip())       # número proximo esperado (1,2,3)
     elif etapas:
         etapas[-1] += " " + linha               # continuação do passo anterior
     # antes do primeiro passo (título, objetivo...) cai aqui e é ignorado
